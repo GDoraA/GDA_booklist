@@ -382,7 +382,8 @@ function validateYearFilter(input) {
 let lista = [];
 // --- PÁGİNÁCIÓ VÁLTOZÓK (IDE KELL TENNI) ---
 let currentPage = 1;
-let limit = 50;         // alapértelmezett elemszám
+let limit = Infinity;   // minden elem megjelenik
+
 let filteredList = [];
 function betoltesLista() {
     const url = API_URL + "?action=getLista&callback=listaValasz&_=" + Date.now();
@@ -751,17 +752,27 @@ function importCsv() {
 
 /********** INDULÁS **********/
 window.onload = function() {
+    document.getElementById("limitSelect").value = "all";   // induláskor Összes
     mutat("lista");
 };
+
 
 // Szűrőmezők datalist-jének betöltése oldalbetöltéskor
 loadDropdownLists();
 
 function changeLimit() {
-    limit = parseInt(document.getElementById("limitSelect").value, 10);
+    const val = document.getElementById("limitSelect").value;
+
+    if (val === "all") {
+        limit = Infinity;   // minden elem egyszerre
+    } else {
+        limit = parseInt(val, 10);
+    }
+
     currentPage = 1;
     listaMegjelenites();
 }
+
 
 function firstPage() {
     currentPage = 1;
