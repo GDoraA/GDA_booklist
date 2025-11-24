@@ -1,14 +1,15 @@
 self.addEventListener("install", e => {
   e.waitUntil(
-    caches.open("gda-cache").then(cache => {
-      return cache.addAll([
-        "/index.html",
-        "/styles.css",
-        "/app.js"
-        "/assets/icon-192.png",
-        "/assets/icon-512.png"
-      ]);
-    })
+  caches.open("gda-cache").then(cache => {
+    return cache.addAll([
+      "/GDA_booklist/index.html",
+      "/GDA_booklist/styles.css",
+      "/GDA_booklist/app.js",
+      "/GDA_booklist/assets/icon-192.png",
+      "/GDA_booklist/assets/icon-512.png"
+    ]);
+  });
+
   );
 });
 
