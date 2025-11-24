@@ -1,0 +1,20 @@
+{
+  "name": "GDA könyvei",
+  "short_name": "GDA könyvei",
+  "start_url": "index.html",
+  "display": "standalone",
+  "background_color": "#f9e5ef",
+  "theme_color": "#a7c7ff",
+  "icons": [
+    {
+      "src": "assets/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "assets/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+    <meta charset="UTF-8">
+    <title>Booklist</title>
+
+    <!-- Font Awesome ikonok -->
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+          integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA=="
+          crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+    <link rel="stylesheet" href="styles.css">
+    <link rel="manifest" href="manifest.json">
+        <meta name="theme-color" content="#a7c7ff">
+
+        <script>
+        if ("serviceWorker" in navigator) {
+            navigator.serviceWorker.register("service-worker.js");
+        }
+        </script>
+
+</head>
+
+<body>
+
+<!-- FEJLÉC -->
+<div class="header">
+    <div class="header-title">
+        📖 GDA könyvei
+    </div>
+</div>
+
+
+
+<div class="container">
+
+
+    <nav>
+        <button id="tab_lista" class="active" onclick="mutat('lista')">
+            📝 Lista
+        </button>
+
+        <button id="tab_import" onclick="mutat('import')">
+            📥 Import
+        </button>
+    </nav>
+
+
+    <!-- LISTA -->
+    <div class="page" id="lista">
+        <h1>Könyvlista</h1>
+
+            <div class="stats-bar">
+                <div class="stat-card" style="background:#dce8ff;color:#335a96;">
+                    Összes könyv: <span id="stat_total">0</span>
+                </div>
+
+                <div class="stat-card" style="background:#f9e5ef;color:#9b3d68;">
+                    Megvásárolt: <span id="stat_purchased">0</span>
+                </div>
+
+                <div class="stat-card" style="background:#ececef;color:#5a5d6b;">
+                    Nincs még meg: <span id="stat_missing">0</span>
+                </div>
+            </div>
+
+
+
+        <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:10px;">
+            <button class="btn btn-primary" onclick="openBookModal('new')">➕ Új könyv felvétele</button>
+            <button class="btn btn-secondary" onclick="betoltesLista()">🔄 Lista frissítése</button>
+        </div>
+
+        <h3>🔍 Szűrés</h3>
+        <div class="filters">
+            <div>
+                <label>Szerző</label><br>
+                <input id="ls_szerzo" list="authors_list_filter" oninput="listaSzures()">
+                <datalist id="authors_list_filter"></datalist>
+            </div>
+            <div>
+                <label>Cím</label><br>
+                <input id="ls_cim" oninput="listaSzures()">
+            </div>
+            <div>
+                <label>Sorozat</label><br>
+                <input id="ls_sorozat" list="series_list_filter" oninput="listaSzures()">
+                <datalist id="series_list_filter"></datalist>
+            </div>
+            <div>
+                <label>Év (tól)</label><br>
+                <input id="ls_ev_min" type="number" min="1" max="9999" step="1" oninput="validateYearFilter(this); listaSzures()">
+            </div>
+            <div>
+                <label>Év (ig)</label><br>
+                <input id="ls_ev_max" type="number" min="1" max="9999" step="1" oninput="validateYearFilter(this); listaSzures()">
+            </div>
+            <div>
+                <label>Megvásárolva</label><br>
+                <select id="ls_megv" onchange="listaSzures()">
+                    <option value="">Mindegy</option>
+                    <option value="x">Csak megvett</option>
+                    <option value="no">Csak nincs meg</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="table-wrapper mt-8">
+            <div class="table-scroll">
+                <table id="tabla_lista">
+                    <thead>
+                        <tr>
+                            <th class="sortable" onclick="setSort('Author')">Szerző</th>
+                            <th class="sortable" onclick="setSort('Title')">Cím</th>
+                            <th class="sortable" onclick="setSort('Series')">Sorozat</th>
+                            <th class="sortable" onclick="setSort('Year')">Év</th>
+                            <th class="sortable" onclick="setSort('Purchased')">Megv.</th>
+                            <th class="sortable" onclick="setSort('For_sale')">Eladó</th>
+                            <th class="sortable" onclick="setSort('Price')">Ár</th>
+                            <th>Művelet</th>
+                        </tr>
+                    </thead>
+
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- IMPORT -->
+    <div class="page" id="import">
+        <h1>CSV / TSV importálása</h1>
+
+        <p>Elvárt struktúra (List fül fejléc sorrendje):</p>
+        <pre>ID,Author,Title,Original_Title,Previous_Title,Series,Number,URL,Year,Purchased,For_sale</pre>
+
+        <p>A fájl lehet vesszővel, pontosvesszővel vagy TAB-bal tagolt.</p>
+
+        <input type="file" id="csvFile" accept=".csv,.tsv,.txt"><br><br>
+        <button class="btn btn-primary" onclick="importCsv()">Importálás</button>
+
+        <h3>Eredmény:</h3>
+        <div id="importResult"></div>
+    </div>
+
+    <h3 style="margin-top:22px;">Log</h3>
+    <div id="log"></div>
+
+</div> <!-- /container -->
+
+<!-- MODAL: Új könyv / Szerkesztés – közös űrlap -->
+<div id="bookModal" class="modal-overlay">
+    <div class="modal">
+        <div class="modal-header">
+            <h2 id="modalTitle">Könyv</h2>
+            <button class="modal-close-btn" onclick="closeBookModal()">&times;</button>
+        </div>
+
+        <input type="hidden" id="bm_id">
+        <input type="hidden" id="bm_existing_url">
+
+        <div class="modal-grid">
+            <div>
+                <label>Szerző *</label><br>
+                <input id="bm_szerzo" list="authors_list_modal">
+                <datalist id="authors_list_modal"></datalist>
+            </div>
+            <div>
+                <label>Cím *</label><br>
+                <input id="bm_cim">
+            </div>
+            <div>
+                <label>Eredeti cím</label><br>
+                <input id="bm_eredeti">
+            </div>
+            <div>
+                <label>Korábbi cím</label><br>
+                <input id="bm_korabbi">
+            </div>
+            <div>
+                <label>Sorozat</label><br>
+                <input id="bm_sorozat" list="series_list_modal">
+                <datalist id="series_list_modal"></datalist>
+            </div>
+            <div>
+                <label>Ssz</label><br>
+                <input id="bm_ssz">
+            </div>
+            <div>
+                <label>Év</label><br>
+                <input id="bm_ev" type="number" min="1" max="9999" step="1" oninput="validateYearFilter(this)">
+            </div>
+            <div>
+                <label>URL (ha nincs feltöltött kép)</label><br>
+                <input id="bm_url">
+            </div>
+            <div style="display:flex;align-items:center;gap:8px;margin-top:18px;">
+                <input type="checkbox" id="bm_purchased" style="width:auto;">
+                <label style="margin:0;">Megvásárolva</label>
+            </div>
+            <div style="display:flex;align-items:center;gap:8px;margin-top:18px;">
+                <input type="checkbox" id="bm_forsale" style="width:auto;">
+                <label style="margin:0;">Eladó</label>
+            </div>
+            <div>
+                <label>Ár</label><br>
+                <input id="bm_ar" type="number" step="1">
+            </div>
+
+            <div>
+                <label>Megjegyzés</label><br>
+                <input id="bm_megjegy">
+            </div>
+
+        </div>
+
+        <div class="modal-image-section">
+            <label>Borítókép</label><br>
+            <input type="file" id="bm_file" accept="image/*"><br>
+            <img id="bm_preview" alt="Borító előnézet">
+        </div>
+
+        <div class="modal-footer">
+            <button class="btn btn-secondary" onclick="closeBookModal()">Mégse</button>
+            <button class="btn btn-primary" onclick="saveBookFromModal()">Mentés</button>
+        </div>
+    </div>
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>
