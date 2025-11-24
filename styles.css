@@ -502,3 +502,7 @@ table thead th {
     z-index: 5;
     background: #f9dbe8; /* fontos, hogy fedjen */
 }
+.table-wrapper {
+    max-height: 70vh;       /* vagy 60vh — ízlés kérdése */
+    overflow-y: auto;
+}
