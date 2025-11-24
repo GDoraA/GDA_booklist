@@ -448,9 +448,22 @@ function listaMegjelenites() {
     const totalPages = Math.max(1, Math.ceil(filteredList.length / limit));
     if (currentPage > totalPages) currentPage = totalPages;
 
-    const start = (currentPage - 1) * limit;
-    const end = start + limit;
-    const pageItems = filteredList.slice(start, end);
+    let pageItems;
+
+    // Ha a limit végtelen → minden elem jelenjen meg egyszerre
+    if (limit === Infinity) {
+        pageItems = filteredList;
+        document.getElementById("pageInfo").textContent = "1 / 1";
+    } else {
+        const start = (currentPage - 1) * limit;
+        const end = start + limit;
+        pageItems = filteredList.slice(start, end);
+
+        const totalPages = Math.max(1, Math.ceil(filteredList.length / limit));
+        document.getElementById("pageInfo").textContent =
+            currentPage + " / " + totalPages;
+    }
+
 
     document.getElementById("pageInfo").textContent =
         currentPage + " / " + totalPages;
