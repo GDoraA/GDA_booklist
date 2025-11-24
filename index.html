@@ -105,6 +105,29 @@
                 </select>
             </div>
         </div>
+        <!-- OLDALVEZÉRLÉS + LIMIT VÁLASZTÁS -->
+        <div class="pagination-bar">
+            <div>
+                <label>Elemek száma:</label>
+                <select id="limitSelect" onchange="changeLimit()">
+                    <option value="10">10</option>
+                    <option value="50">50</option>
+                    <option value="100">100</option>
+                    <option value="500">500</option>
+                    <option value="1000">1000</option>
+                </select>
+            </div>
+
+            <div class="pager">
+                <button onclick="firstPage()">⏮️</button>
+                <button onclick="prevPage()">◀️</button>
+
+                <span id="pageInfo">1 / 1</span>
+
+                <button onclick="nextPage()">▶️</button>
+                <button onclick="lastPage()">⏭️</button>
+            </div>
+        </div>
 
         <div class="table-wrapper mt-8">
             <div class="table-scroll">

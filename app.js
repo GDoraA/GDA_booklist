@@ -380,7 +380,10 @@ function validateYearFilter(input) {
 
 /********** LISTA **********/
 let lista = [];
-
+// --- PÁGİNÁCIÓ VÁLTOZÓK (IDE KELL TENNI) ---
+let currentPage = 1;
+let limit = 50;         // alapértelmezett elemszám
+let filteredList = [];
 function betoltesLista() {
     const url = API_URL + "?action=getLista&callback=listaValasz&_=" + Date.now();
     const s = document.createElement("script");
@@ -439,7 +442,17 @@ function listaMegjelenites() {
 
         return true;
     });
+    filteredList = filtered;
 
+    const totalPages = Math.max(1, Math.ceil(filteredList.length / limit));
+    if (currentPage > totalPages) currentPage = totalPages;
+
+    const start = (currentPage - 1) * limit;
+    const end = start + limit;
+    const pageItems = filteredList.slice(start, end);
+
+    document.getElementById("pageInfo").textContent =
+        currentPage + " / " + totalPages;
     // Rendezés
     filtered.sort((a, b) => {
         const f = currentSort.field;
@@ -477,7 +490,8 @@ function listaMegjelenites() {
     document.getElementById("stat_missing").textContent = missingCount;
 
     // Sorok
-    filtered.forEach(item => {
+    pageItems.forEach(item => {
+
         const tr = document.createElement("tr");
 
         const urlCell = (item["URL"] || "").trim()
@@ -743,3 +757,33 @@ window.onload = function() {
 // Szűrőmezők datalist-jének betöltése oldalbetöltéskor
 loadDropdownLists();
 
+function changeLimit() {
+    limit = parseInt(document.getElementById("limitSelect").value, 10);
+    currentPage = 1;
+    listaMegjelenites();
+}
+
+function firstPage() {
+    currentPage = 1;
+    listaMegjelenites();
+}
+
+function prevPage() {
+    if (currentPage > 1) {
+        currentPage--;
+        listaMegjelenites();
+    }
+}
+
+function nextPage() {
+    const totalPages = Math.ceil(filteredList.length / limit);
+    if (currentPage < totalPages) {
+        currentPage++;
+        listaMegjelenites();
+    }
+}
+
+function lastPage() {
+    currentPage = Math.ceil(filteredList.length / limit);
+    listaMegjelenites();
+}

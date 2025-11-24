@@ -468,3 +468,37 @@ text-shadow:
     }
 }
 
+/* --- LAPOZÓ SÁV --- */
+.pagination-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin: 14px 0;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+
+.pagination-bar select {
+    padding: 6px 10px;
+    border-radius: 8px;
+    border: 1px solid var(--border-soft);
+}
+
+.pager button {
+    padding: 6px 10px;
+    border-radius: 6px;
+    border: 1px solid #cbd5e1;
+    background: #fff;
+    cursor: pointer;
+}
+.pager button:hover {
+    background: #e2e8f0;
+}
+
+/* --- STICKY TABLE HEADER --- */
+table thead th {
+    position: sticky;
+    top: 0;
+    z-index: 5;
+    background: #f9dbe8; /* fontos, hogy fedjen */
+}
